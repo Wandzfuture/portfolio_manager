@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Portfolio Manager</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css">
+    <style>
+        .slick-prev:before, .slick-next:before {
+            color: #4A5568;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="app" class="container mx-auto px-4 py-8">
+        <!-- Authentication Section -->
+        <div id="authSection" class="mb-8">
+            <h2 class="text-3xl font-bold mb-4">Visual Portfolio Manager</h2>
+            <div id="authOptions" class="space-y-4">
+                <button id="showSignupBtn" class="w-full bg-green-500 text-white p-2 rounded">Sign Up</button>
+                <button id="showLoginBtn" class="w-full bg-blue-500 text-white p-2 rounded">Log In</button>
+            </div>
+            <form id="signupForm" class="space-y-4 hidden">
+                <h3 class="text-xl font-bold">Sign Up</h3>
+                <input type="email" id="signupEmail" placeholder="Email" required class="w-full p-2 border rounded">
+                <input type="password" id="signupPassword" placeholder="Password" required class="w-full p-2 border rounded">
+                <button type="submit" class="w-full bg-green-500 text-white p-2 rounded">Create Account</button>
+                <button type="button" class="showLoginBtn w-full bg-gray-300 text-gray-700 p-2 rounded">Already have an account? Log In</button>
+            </form>
+            <form id="loginForm" class="space-y-4 hidden">
+                <h3 class="text-xl font-bold">Log In</h3>
+                <input type="email" id="loginEmail" placeholder="Email" required class="w-full p-2 border rounded">
+                <input type="password" id="loginPassword" placeholder="Password" required class="w-full p-2 border rounded">
+                <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded">Log In</button>
+                <button type="button" class="showSignupBtn w-full bg-gray-300 text-gray-700 p-2 rounded">Don't have an account? Sign Up</button>
+            </form>
+        </div>
+
+        <!-- Dashboard Section (initially hidden) -->
+        <div id="dashboardSection" class="hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-3xl font-bold">Your Creative Works</h2>
+                <button id="logoutBtn" class="bg-red-500 text-white p-2 rounded">Log Out</button>
+            </div>
+            <button id="createWorkBtn" class="bg-green-500 text-white p-2 rounded mb-4">Add New Work</button>
+            <div id="categoryFilter" class="mb-4">
+                <label for="categorySelect" class="block text-sm font-medium text-gray-700">Filter by Category:</label>
+                <select id="categorySelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                    <option value="all">All Categories</option>
+                </select>
+            </div>
+            <div id="worksList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- Work Edit Section (initially hidden) -->
+        <div id="editSection" class="hidden">
+            <h2 class="text-3xl font-bold mb-4">Edit Creative Work</h2>
+            <form id="editForm" class="space-y-4">
+                <input type="text" id="workTitle" placeholder="Work Title" required class="w-full p-2 border rounded">
+                <select id="workType" required class="w-full p-2 border rounded">
+                    <option value="">Select Work Type</option>
+                    <option value="project">Project</option>
+                    <option value="movie">Movie</option>
+                    <option value="photo">Photo</option>
+                </select>
+                <input type="text" id="workCategory" placeholder="Category (e.g., photography, film, design)" required class="w-full p-2 border rounded">
+                <textarea id="workDescription" placeholder="Work Description" required class="w-full p-2 border rounded"></textarea>
+                <div id="imageUrlsContainer">
+                    <input type="url" class="workImageUrl w-full p-2 border rounded mb-2" placeholder="Image URL" required>
+                </div>
+                <button type="button" id="addImageUrlBtn" class="bg-blue-500 text-white p-2 rounded">Add Another Image</button>
+                <input type="url" id="workVideoUrl" placeholder="Video URL (optional)" class="w-full p-2 border rounded">
+                <button type="submit" class="w-full bg-green-500 text-white p-2 rounded">Save Work</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
+        import { getFirestore, collection, addDoc, updateDoc, doc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvMzWcF2xpJd8UdajW581x-YBHTcFbyv0",
+            authDomain: "portfolio-manger-b91ef.firebaseapp.com",
+            projectId: "portfolio-manger-b91ef",
+            storageBucket: "portfolio-manger-b91ef.appspot.com",
+            messagingSenderId: "426426022255",
+            appId: "1:426426022255:web:af1bc637c6af6e0f3a509a",
+            measurementId: "G-G7N2GS7QX8"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM elements
+        const authSection = document.getElementById('authSection');
+        const authOptions = document.getElementById('authOptions');
+        const signupForm = document.getElementById('signupForm');
+        const loginForm = document.getElementById('loginForm');
+        const dashboardSection = document.getElementById('dashboardSection');
+        const editSection = document.getElementById('editSection');
+        const worksList = document.getElementById('worksList');
+        const createWorkBtn = document.getElementById('createWorkBtn');
+        const editForm = document.getElementById('editForm');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const categorySelect = document.getElementById('categorySelect');
+        const addImageUrlBtn = document.getElementById('addImageUrlBtn');
+
+        let currentUser = null;
+        let currentWorkId = null;
+        let categories = new Set();
+
+        // Show signup form
+        document.getElementById('showSignupBtn').addEventListener('click', () => {
+            authOptions.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+        });
+
+        // Show login form
+        document.getElementById('showLoginBtn').addEventListener('click', () => {
+            authOptions.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+        });
+
+        // Switch to login form
+        document.querySelectorAll('.showLoginBtn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                signupForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+            });
+        });
+
+        // Switch to signup form
+        document.querySelectorAll('.showSignupBtn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+            });
+        });
+
+        // Signup
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                // User will be automatically logged in after successful signup
+            } catch (error) {
+                console.error('Signup error:', error);
+                alert('Signup failed: ' + error.message);
+            }
+        });
+
+        // Login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed: ' + error.message);
+            }
+        });
+
+        // Logout
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Logout failed: ' + error.message);
+            }
+        });
+
+        // Auth state observer
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                authSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                loadWorks();
+            } else {
+                currentUser = null;
+                authSection.classList.remove('hidden');
+                authOptions.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                loginForm.classList.add('hidden');
+                dashboardSection.classList.add('hidden');
+                editSection.classList.add('hidden');
+            }
+        });
+
+        // Load user's works
+        async function loadWorks() {
+            const worksRef = collection(db, 'works');
+            const q = query(worksRef, where("userId", "==", currentUser.uid));
+            const snapshot = await getDocs(q);
+            worksList.innerHTML = '';
+            categories.clear();
+            snapshot.forEach((doc) => {
+                const work = doc.data();
+                categories.add(work.category);
+                addWorkToList(doc.id, work);
+            });
+            updateCategoryFilter();
+        }
+
+        function addWorkToList(id, work) {
+            const div = document.createElement('div');
+            div.className = 'bg-white p-4 rounded shadow';
+            div.innerHTML = `
+                <div class="work-slider mb-2">
+                    ${work.imageUrls.map(url => `
+                        <div>
+                            <a href="${url}" data-lightbox="work-${id}" data-title="${work.title}">
+                                <img src="${url}" alt="${work.title}" class="w-full h-48 object-cover rounded">
+                            </a>
+                        </div>
+                    `).join('')}
+                </div>
+                <h3 class="text-xl font-bold">${work.title}</h3>
+                <p class="text-sm text-gray-600">${work.type} | ${work.category}</p>
+                <p class="mt-2">${work.description}</p>
+                ${work.videoUrl ? `<a href="${work.videoUrl}" target="_blank" class="text-blue-500 hover:underline mt-2 block">View Video</a>` : ''}
+                <button class="edit-btn bg-yellow-500 text-white p-2 rounded mt-2" data-id="${id}">Edit</button>
+            `;
+            worksList.appendChild(div);
+
+            // Initialize slider
+            $(div.querySelector('.work-slider')).slick({
+                dots: true,
+                infinite: true,
+                speed: 500,
+                slidesToShow: 1,
+                adaptiveHeight: true
+            });
+        }
+
+        function updateCategoryFilter() {
+            categorySelect.innerHTML = '<option value="all">All Categories</option>';
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+            });
+        }
+
+        // Filter works by category
+        categorySelect.addEventListener('change', async () => {
+            const selectedCategory = categorySelect.value;
+            const worksRef = collection(db, 'works');
+            let q;
+            if (selectedCategory === 'all') {
+                q = query(worksRef, where("userId", "==", currentUser.uid));
+            } else {
+                q = query(worksRef, where("userId", "==", currentUser.uid), where("category", "==", selectedCategory));
+            }
+            const snapshot = await getDocs(q);
+            worksList.innerHTML = '';
+            snapshot.forEach((doc) => {
+                addWorkToList(doc.id, doc.data());
+            });
+        });
+
+        // Create new work
+        createWorkBtn.addEventListener('click', () => {
+            currentWorkId = null;
+            editForm.reset();
+            document.getElementById('imageUrlsContainer').innerHTML = '<input type="url" class="workImageUrl w-full p-2 border rounded mb-2" placeholder="Image URL" required>';
+            dashboardSection.classList.add('hidden');
+            editSection.classList.remove('hidden');
+        });
+
+        // Edit work
+        worksList.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('edit-btn')) {
+                currentWorkId = e.target.dataset.id;
+                const docRef = doc(db, 'works', currentWorkId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const work = docSnap.data();
+                    document.getElementById('workTitle').value = work.title;
+                    document.getElementById('workType').value = work.type;
+                    document.getElementById('workCategory').value = work.category;
+                    document.getElementById('workDescription').value = work.description;
+                    document.getElementById('workVideoUrl').value = work.videoUrl || '';
+
+                    // Clear existing image URL inputs
+                    document.getElementById('imageUrlsContainer').innerHTML = '';
+
+                    // Add image URL inputs for each existing image
+                    work.imageUrls.forEach((url, index) => {
+                        const input = document.createElement('input');
+                        input.type = 'url';
+                        input.className = 'workImageUrl w-full p-2 border rounded mb-2';
+                        input.placeholder = `Image URL ${index + 1}`;
+                        input.value = url;
+                        input.required = true;
+                        document.getElementById('imageUrlsContainer').appendChild(input);
+                    });
+
+                    dashboardSection.classList.add('hidden');
+                    editSection.classList.remove('hidden');
+                } else {
+                    console.log("No such document!");
+                }
+            }
+        });
+
+        // Add image URL input
+        addImageUrlBtn.addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'url';
+            input.className = 'workImageUrl w-full p-2 border rounded mb-2';
+            input.placeholder = 'Image URL';
+            input.required = true;
+            document.getElementById('imageUrlsContainer').appendChild(input);
+        });
+
+        // Save work
+        editForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('workTitle').value;
+            const type = document.getElementById('workType').value;
+            const category = document.getElementById('workCategory').value;
+            const description = document.getElementById('workDescription').value;
+            const videoUrl = document.getElementById('workVideoUrl').value;
+            const imageUrls = Array.from(document.getElementsByClassName('workImageUrl')).map(input => input.value);
+
+            const workData = {
+                userId: currentUser.uid,
+                title,
+                type,
+                category,
+                description,
+                imageUrls,
+                videoUrl
+            };
+
+            try {
+                if (currentWorkId) {
+                    const workRef = doc(db, 'works', currentWorkId);
+                    await updateDoc(workRef, workData);
+                } else {
+                    await addDoc(collection(db, 'works'), workData);
+                }
+
+                editSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                loadWorks();
+            } catch (error) {
+                console.error('Error saving work:', error);
+                alert('Failed to save work: ' + error.message);
+            }
+        });
+
+        // Initialize Lightbox
+        lightbox.option({
+            'resizeDuration': 200,
+            'wrapAround': true
+        });
+    </script>
+</body>
+</html>
