@@ -132,92 +132,92 @@
         const categorySelect = document.getElementById('categorySelect');
         const addImageUrlBtn = document.getElementById('addImageUrlBtn');
 
-        let currentUser = null;
-        let currentWorkId = null;
-        let categories = new Set();
+        let currentUser = null; // Currently logged-in user
+        let currentWorkId = null; // ID of the work currently being edited
+        let categories = new Set(); // Set of categories for filtering
 
-        // Show signup form
+        // Show signup form when the signup button is clicked
         document.getElementById('showSignupBtn').addEventListener('click', () => {
-            authOptions.classList.add('hidden');
-            signupForm.classList.remove('hidden');
+            authOptions.classList.add('hidden'); // Hide auth options
+            signupForm.classList.remove('hidden'); // Show signup form
         });
 
-        // Show login form
+        // Show login form when the login button is clicked
         document.getElementById('showLoginBtn').addEventListener('click', () => {
-            authOptions.classList.add('hidden');
-            loginForm.classList.remove('hidden');
+            authOptions.classList.add('hidden'); // Hide auth options
+            loginForm.classList.remove('hidden'); // Show login form
         });
 
-        // Switch to login form
+        // Switch from signup to login form
         document.querySelectorAll('.showLoginBtn').forEach(btn => {
             btn.addEventListener('click', () => {
-                signupForm.classList.add('hidden');
-                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden'); // Hide signup form
+                loginForm.classList.remove('hidden'); // Show login form
             });
         });
 
-        // Switch to signup form
+        // Switch from login to signup form
         document.querySelectorAll('.showSignupBtn').forEach(btn => {
             btn.addEventListener('click', () => {
-                loginForm.classList.add('hidden');
-                signupForm.classList.remove('hidden');
+                loginForm.classList.add('hidden'); // Hide login form
+                signupForm.classList.remove('hidden'); // Show signup form
             });
         });
 
-        // Signup
+        // Handle signup form submission
         signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
+            e.preventDefault(); // Prevent default form submission behavior
+            const email = document.getElementById('signupEmail').value; // Get email input value
+            const password = document.getElementById('signupPassword').value; // Get password input value
 
             try {
-                await createUserWithEmailAndPassword(auth, email, password);
+                await createUserWithEmailAndPassword(auth, email, password); // Create new user with email and password
                 // User will be automatically logged in after successful signup
             } catch (error) {
-                console.error('Signup error:', error);
-                alert('Signup failed: ' + error.message);
+                console.error('Signup error:', error); // Log error to console
+		alert('Signup failed: ' + error.message); // Show error message to user
             }
         });
 
-        // Login
+        // Handle login form submission
         loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
+            e.preventDefault(); // Prevent default form submission behavior
+            const email = document.getElementById('loginEmail').value; // Get email input value
+            const password = document.getElementById('loginPassword').value; // Get password input value
 
             try {
-                await signInWithEmailAndPassword(auth, email, password);
+                await signInWithEmailAndPassword(auth, email, password); // Sign in user with email and password
             } catch (error) {
-                console.error('Login error:', error);
-                alert('Login failed: ' + error.message);
+                console.error('Login error:', error); // Log error to console
+                alert('Login failed: ' + error.message); // Show error message to user
             }
         });
 
-        // Logout
+        // Handle logout button click
         logoutBtn.addEventListener('click', async () => {
             try {
-                await signOut(auth);
+                await signOut(auth); // Log out the current user
             } catch (error) {
-                console.error('Logout error:', error);
-                alert('Logout failed: ' + error.message);
+                console.error('Logout error:', error); // Log error to console
+                alert('Logout failed: ' + error.message); // Show error message to user
             }
         });
 
-        // Auth state observer
+        // Auth state observer:: Handles changes in user authentication state
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUser = user;
-                authSection.classList.add('hidden');
-                dashboardSection.classList.remove('hidden');
-                loadWorks();
+                currentUser = user; // Set current user
+                authSection.classList.add('hidden'); // Hide auth section
+                dashboardSection.classList.remove('hidden'); // Show dashboard section
+                loadWorks(); // Load user's works
             } else {
-                currentUser = null;
-                authSection.classList.remove('hidden');
-                authOptions.classList.remove('hidden');
-                signupForm.classList.add('hidden');
-                loginForm.classList.add('hidden');
-                dashboardSection.classList.add('hidden');
-                editSection.classList.add('hidden');
+                currentUser = null; // Clear current user
+                authSection.classList.remove('hidden');  // Show auth section
+                authOptions.classList.remove('hidden'); // Show authentication options
+                signupForm.classList.add('hidden'); // Hide signup form
+                loginForm.classList.add('hidden'); // Hide login form
+                dashboardSection.classList.add('hidden'); // Hide dashboard section
+                editSection.classList.add('hidden'); // Hide edit section
             }
         });
 
