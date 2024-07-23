@@ -221,24 +221,27 @@
             }
         });
 
-        // Load user's works
+        // Function to load the user's works from Firestore
         async function loadWorks() {
-            const worksRef = collection(db, 'works');
-            const q = query(worksRef, where("userId", "==", currentUser.uid));
-            const snapshot = await getDocs(q);
-            worksList.innerHTML = '';
-            categories.clear();
+            const worksRef = collection(db, 'works'); // Reference to the 'works' collection in Firestore
+            const q = query(worksRef, where("userId", "==", currentUser.uid)); // Query to get works of the current user
+            const snapshot = await getDocs(q); // Execute the query and get the documents
+            worksList.innerHTML = ''; // Clear the works list
+            categories.clear(); // Clear the categories set
+
+	    // Iterate through each document in the snapshot
             snapshot.forEach((doc) => {
-                const work = doc.data();
-                categories.add(work.category);
-                addWorkToList(doc.id, work);
+                const work = doc.data(); // Get the data of the current document
+                categories.add(work.category); // Add the work's category to the categories set
+                addWorkToList(doc.id, work); // Add the work to the list
             });
-            updateCategoryFilter();
+            updateCategoryFilter(); // Update the category filter dropdown
         }
 
+	// Function to add a work to the list
         function addWorkToList(id, work) {
-            const div = document.createElement('div');
-            div.className = 'bg-white p-4 rounded shadow';
+            const div = document.createElement('div'); // Create a new div element
+            div.className = 'bg-white p-4 rounded shadow';// Set the class for styling
             div.innerHTML = `
                 <div class="work-slider mb-2">
                     ${work.imageUrls.map(url => `
@@ -255,9 +258,9 @@
                 ${work.videoUrl ? `<a href="${work.videoUrl}" target="_blank" class="text-blue-500 hover:underline mt-2 block">View Video</a>` : ''}
                 <button class="edit-btn bg-yellow-500 text-white p-2 rounded mt-2" data-id="${id}">Edit</button>
             `;
-            worksList.appendChild(div);
+            worksList.appendChild(div); // Append the new div to the works list
 
-            // Initialize slider
+            // Initialize the slider for the work's images
             $(div.querySelector('.work-slider')).slick({
                 dots: true,
                 infinite: true,
@@ -267,55 +270,60 @@
             });
         }
 
+	// Function to update the category filter dropdown
         function updateCategoryFilter() {
             categorySelect.innerHTML = '<option value="all">All Categories</option>';
             categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                categorySelect.appendChild(option);
+                const option = document.createElement('option'); // Create a new option element
+                option.value = category; // Set the option's value
+                option.textContent = category; // Set the option's text
+                categorySelect.appendChild(option); // Append the option to the dropdown
             });
         }
 
-        // Filter works by category
+        // Event listener to filter works by category
         categorySelect.addEventListener('change', async () => {
-            const selectedCategory = categorySelect.value;
-            const worksRef = collection(db, 'works');
+            const selectedCategory = categorySelect.value; // Get the selected category
+            const worksRef = collection(db, 'works'); // Reference to the 'works' collection in Firestore
             let q;
+
             if (selectedCategory === 'all') {
-                q = query(worksRef, where("userId", "==", currentUser.uid));
+                q = query(worksRef, where("userId", "==", currentUser.uid)); // Query to get all works of the current user
             } else {
-                q = query(worksRef, where("userId", "==", currentUser.uid), where("category", "==", selectedCategory));
+                q = query(worksRef, where("userId", "==", currentUser.uid), where("category", "==", selectedCategory)); // Query to get works of the current user filtered by category
             }
-            const snapshot = await getDocs(q);
-            worksList.innerHTML = '';
+
+            const snapshot = await getDocs(q); // Execute the query and get the documents
+            worksList.innerHTML = ''; // Clear the works list
+
+	    // Iterate through each document in the snapshot
             snapshot.forEach((doc) => {
                 addWorkToList(doc.id, doc.data());
             });
         });
 
-        // Create new work
+        // This allows for new work to be Created
         createWorkBtn.addEventListener('click', () => {
             currentWorkId = null;
             editForm.reset();
-            document.getElementById('imageUrlsContainer').innerHTML = '<input type="url" class="workImageUrl w-full p-2 border rounded mb-2" placeholder="Image URL" required>';
-            dashboardSection.classList.add('hidden');
-            editSection.classList.remove('hidden');
+            document.getElementById('imageUrlsContainer').innerHTML = '<input type="url" class="workImageUrl w-full p-2 border rounded mb-2" placeholder="Image URL" required>'; // Reset the image URLs container
+            dashboardSection.classList.add('hidden'); // Hide the dashboard section
+            editSection.classList.remove('hidden'); // Show the edit section
         });
 
-        // Edit work
+        // when Editing existing work
         worksList.addEventListener('click', async (e) => {
             if (e.target.classList.contains('edit-btn')) {
-                currentWorkId = e.target.dataset.id;
-                const docRef = doc(db, 'works', currentWorkId);
-                const docSnap = await getDoc(docRef);
+                currentWorkId = e.target.dataset.id; // Get the ID of the work to edit
+                const docRef = doc(db, 'works', currentWorkId); // Reference to the document in Firestore
+                const docSnap = await getDoc(docRef); // Get the document snapshot
                 if (docSnap.exists()) {
-                    const work = docSnap.data();
-                    document.getElementById('workTitle').value = work.title;
-                    document.getElementById('workType').value = work.type;
-                    document.getElementById('workCategory').value = work.category;
-                    document.getElementById('workDescription').value = work.description;
-                    document.getElementById('workVideoUrl').value = work.videoUrl || '';
+                    const work = docSnap.data(); // Get the data of the document
+                    document.getElementById('workTitle').value = work.title; // Set the work title in the form
+                    document.getElementById('workType').value = work.type; // Set the work type in the form
+                    document.getElementById('workCategory').value = work.category; // Set the work category in the form
+                    document.getElementById('workDescription').value = work.description; // Set the work description in the form
+                    document.getElementById('workVideoUrl').value = work.videoUrl || ''; // Set the work video URL in the form
 
                     // Clear existing image URL inputs
                     document.getElementById('imageUrlsContainer').innerHTML = '';
