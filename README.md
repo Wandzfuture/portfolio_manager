@@ -1,6 +1,6 @@
 ## ShowcaseHub
 
-![ShowcaseHub Banner](link-to-banner-image)
+![ShowcaseHub Banner](images/Orange And White Gradient Workshop Banner.mp4)
 
 
 ### Authors
