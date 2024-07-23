@@ -1,6 +1,7 @@
 ## ShowcaseHub
 
-![ShowcaseHub Banner](https://github.com/Wandzfuture/portfolio_manager/blob/main/images/Orange%20And%20White%20Gradient%20Workshop%20Banner.mp4)
+![ShowcaseHub Banner](https://github.com/user-attachments/assets/3695be76-e428-460d-af2d-d5a806b4adf1
+)
 
 
 ### Authors
