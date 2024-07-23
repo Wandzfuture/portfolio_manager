@@ -39,55 +39,70 @@
             </form>
         </div>
 
-        <!-- Dashboard Section (initially hidden) -->
+        <!-- Dashboard Section: Displays user's creative works. Initially hidden and shown upon user login -->
         <div id="dashboardSection" class="hidden">
+	    <!-- Header: Title and Log Out button -->
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-3xl font-bold">Your Creative Works</h2>
                 <button id="logoutBtn" class="bg-red-500 text-white p-2 rounded">Log Out</button>
             </div>
+	    <!-- Button to add new creative work -->
             <button id="createWorkBtn" class="bg-green-500 text-white p-2 rounded mb-4">Add New Work</button>
+	    <!-- Filter by category dropdown -->
             <div id="categoryFilter" class="mb-4">
                 <label for="categorySelect" class="block text-sm font-medium text-gray-700">Filter by Category:</label>
                 <select id="categorySelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                     <option value="all">All Categories</option>
                 </select>
             </div>
+	    <!-- List of user's creative works -->
             <div id="worksList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
         </div>
 
-        <!-- Work Edit Section (initially hidden) -->
+	<!-- Work Edit Section: Form to edit or add new creative work. Initially hidden -->
         <div id="editSection" class="hidden">
             <h2 class="text-3xl font-bold mb-4">Edit Creative Work</h2>
             <form id="editForm" class="space-y-4">
+		<!-- Input for work title -->
                 <input type="text" id="workTitle" placeholder="Work Title" required class="w-full p-2 border rounded">
+		<!-- Dropdown to select work type -->
                 <select id="workType" required class="w-full p-2 border rounded">
                     <option value="">Select Work Type</option>
                     <option value="project">Project</option>
                     <option value="movie">Movie</option>
                     <option value="photo">Photo</option>
                 </select>
+		<!-- Input for work category -->
                 <input type="text" id="workCategory" placeholder="Category (e.g., photography, film, design)" required class="w-full p-2 border rounded">
+		<!-- Textarea for work description -->
                 <textarea id="workDescription" placeholder="Work Description" required class="w-full p-2 border rounded"></textarea>
+		<!-- Container for image URLs with initial input field -->
                 <div id="imageUrlsContainer">
                     <input type="url" class="workImageUrl w-full p-2 border rounded mb-2" placeholder="Image URL" required>
                 </div>
+		<!-- Button to add more image URL input fields -->
                 <button type="button" id="addImageUrlBtn" class="bg-blue-500 text-white p-2 rounded">Add Another Image</button>
+		<!-- Input for optional video URL -->
                 <input type="url" id="workVideoUrl" placeholder="Video URL (optional)" class="w-full p-2 border rounded">
+		<!-- Submit button to save the work -->
                 <button type="submit" class="w-full bg-green-500 text-white p-2 rounded">Save Work</button>
             </form>
         </div>
     </div>
 
+    <!-- Import jQuery library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Import Lightbox library for image viewing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+    <!-- Import Slick carousel library for image sliders -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
     <script type="module">
-        // Import the functions you need from the SDKs you need
+        // Import the necessary functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-auth.js";
         import { getFirestore, collection, addDoc, updateDoc, doc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
-        // Your web app's Firebase configuration
+        // Firebase configuration object containing API keys and other identifiers
         const firebaseConfig = {
             apiKey: "AIzaSyAvMzWcF2xpJd8UdajW581x-YBHTcFbyv0",
             authDomain: "portfolio-manger-b91ef.firebaseapp.com",
