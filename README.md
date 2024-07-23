@@ -1,6 +1,6 @@
 ## ShowcaseHub
 
-![ShowcaseHub Banner](images/Orange And White Gradient Workshop Banner.mp4)
+![ShowcaseHub Banner](https://github.com/Wandzfuture/portfolio_manager/blob/main/images/Orange%20And%20White%20Gradient%20Workshop%20Banner.mp4)
 
 
 ### Authors
@@ -158,7 +158,9 @@ These related projects and resources should help you draw inspiration and find u
 
 ### Screenshot
 
-![ShowcaseHub Screenshot](link-to-screenshot)
+![ShowcaseHub Screenshot](https://github.com/Wandzfuture/portfolio_manager/blob/main/images/portfolio.PNG?raw=true)
+
+![user authentication](https://github.com/Wandzfuture/portfolio_manager/blob/main/images/first_page.PNG?raw=true)
 
 ---
 Process and Collaboration
