@@ -330,16 +330,16 @@
 
                     // Add image URL inputs for each existing image
                     work.imageUrls.forEach((url, index) => {
-                        const input = document.createElement('input');
-                        input.type = 'url';
-                        input.className = 'workImageUrl w-full p-2 border rounded mb-2';
-                        input.placeholder = `Image URL ${index + 1}`;
-                        input.value = url;
-                        input.required = true;
-                        document.getElementById('imageUrlsContainer').appendChild(input);
+                        const input = document.createElement('input'); // Create a new input element
+                        input.type = 'url'; // Set the input type to 'url'
+                        input.className = 'workImageUrl w-full p-2 border rounded mb-2'; // Add necessary classes for styling
+                        input.placeholder = `Image URL ${index + 1}`; // Set the placeholder text with the index
+                        input.value = url; // Set the input value to the current URL
+                        input.required = true; // Make the input field required
+                        document.getElementById('imageUrlsContainer').appendChild(input); // Append the input to the container
                     });
 
-                    dashboardSection.classList.add('hidden');
+                    dashboardSection.classList.add('hidden'); // Log a message if the document does not exist
                     editSection.classList.remove('hidden');
                 } else {
                     console.log("No such document!");
@@ -347,17 +347,17 @@
             }
         });
 
-        // Add image URL input
+        // Allows for a new image to be added by URL input
         addImageUrlBtn.addEventListener('click', () => {
-            const input = document.createElement('input');
-            input.type = 'url';
-            input.className = 'workImageUrl w-full p-2 border rounded mb-2';
-            input.placeholder = 'Image URL';
+            const input = document.createElement('input'); // Create a new input element
+            input.type = 'url'; // Set the input type to 'url'
+            input.className = 'workImageUrl w-full p-2 border rounded mb-2'; // Add necessary classes for styling
+            input.placeholder = 'Image URL'; // Set the placeholder text
             input.required = true;
-            document.getElementById('imageUrlsContainer').appendChild(input);
+            document.getElementById('imageUrlsContainer').appendChild(input); // Append the input to the container
         });
 
-        // Save work
+        // Allows for the work to be Saved
         editForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const title = document.getElementById('workTitle').value;
@@ -368,36 +368,36 @@
             const imageUrls = Array.from(document.getElementsByClassName('workImageUrl')).map(input => input.value);
 
             const workData = {
-                userId: currentUser.uid,
-                title,
-                type,
-                category,
-                description,
-                imageUrls,
-                videoUrl
+                userId: currentUser.uid, // Set the user ID
+                title, // Set the title
+                type, // Set the type
+                category, // Set the category
+                description, // Set the description
+                imageUrls, // Set the image URLs
+                videoUrl // Set the video URL
             };
 
             try {
                 if (currentWorkId) {
-                    const workRef = doc(db, 'works', currentWorkId);
-                    await updateDoc(workRef, workData);
+                    const workRef = doc(db, 'works', currentWorkId); // Reference to the existing work document
+                    await updateDoc(workRef, workData); // Update the existing work document with the new data
                 } else {
-                    await addDoc(collection(db, 'works'), workData);
+                    await addDoc(collection(db, 'works'), workData); // Add a new work document with the new data
                 }
 
                 editSection.classList.add('hidden');
                 dashboardSection.classList.remove('hidden');
-                loadWorks();
+                loadWorks(); // Reload the works
             } catch (error) {
-                console.error('Error saving work:', error);
-                alert('Failed to save work: ' + error.message);
+                console.error('Error saving work:', error); // Log the error if saving fails
+                alert('Failed to save work: ' + error.message); // Show an alert if saving fails
             }
         });
 
-        // Initialize Lightbox
+        // Initialize Lightbox with options
         lightbox.option({
-            'resizeDuration': 200,
-            'wrapAround': true
+            'resizeDuration': 200, // Set the resize duration to 200ms
+            'wrapAround': true // Enable wrap around for the lightbox
         });
     </script>
 </body>
